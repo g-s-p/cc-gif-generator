@@ -16,14 +16,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
         <style>{`
-html {
-  font-family: ${GeistMono.style.fontFamily};
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
-}
+          :root {
+            --font-geist-sans: ${GeistSans.style.fontFamily};
+            --font-geist-mono: ${GeistMono.style.fontFamily};
+          }
         `}</style>
       </head>
       <body className="font-mono">{children}</body>
