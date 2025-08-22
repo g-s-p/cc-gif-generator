@@ -17,15 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <head>
-        <style>{`
-          :root {
-            --font-geist-sans: ${GeistSans.style.fontFamily};
-            --font-geist-mono: ${GeistMono.style.fontFamily};
-          }
-        `}</style>
-      </head>
-      <body className="font-mono">{children}</body>
+      <body>{children}</body>
     </html>
   )
 }
