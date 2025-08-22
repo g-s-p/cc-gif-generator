@@ -87,128 +87,16 @@ function Spinner({ isRunning }: { isRunning: boolean }) {
     return () => clearInterval(interval)
   }, [isRunning, sequence.length])
 
-  return <span className="text-orange-500 font-bold">{sequence[index]}</span>
+  return <span className="text-orange-500 font-bold inline-block w-6 text-center">{sequence[index]}</span>
 }
 
 function Logo() {
   return (
-    <div className="text-center mb-12 p-6">
-      <svg className="h-24 w-auto mx-auto" viewBox="0 0 500 140" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="modernGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: "#f97316", stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: "#ea580c", stopOpacity: 1 }} />
-          </linearGradient>
-
-          <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: "#f97316", stopOpacity: 1 }} />
-            <stop offset="50%" style={{ stopColor: "#fb923c", stopOpacity: 1 }} />
-            <stop offset="100%" style={{ stopColor: "#fdba74", stopOpacity: 1 }} />
-          </linearGradient>
-
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-
-          <filter id="textGlow">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Animated spinner circles - larger and more prominent */}
-        <g transform="translate(60, 70)">
-          <circle
-            cx="0"
-            cy="0"
-            r="28"
-            fill="none"
-            stroke="url(#modernGradient)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeDasharray="44 44"
-            opacity="0.4"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0;360"
-              dur="3s"
-              repeatCount="indefinite"
-            />
-          </circle>
-
-          <circle
-            cx="0"
-            cy="0"
-            r="28"
-            fill="none"
-            stroke="url(#modernGradient)"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeDasharray="22 66"
-            filter="url(#glow)"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0;360"
-              dur="1.5s"
-              repeatCount="indefinite"
-            />
-          </circle>
-
-          <circle cx="0" cy="0" r="4" fill="url(#modernGradient)" filter="url(#glow)" />
-        </g>
-
-        {/* Main title - larger and with gradient */}
-        <text
-          x="130"
-          y="55"
-          fontFamily="ui-monospace, SFMono-Regular, monospace"
-          fontSize="42"
-          fontWeight="700"
-          fill="url(#textGradient)"
-          letterSpacing="-0.02em"
-          filter="url(#textGlow)"
-        >
-          GIF
-        </text>
-
-        {/* Subtitle - improved spacing and color */}
-        <text
-          x="130"
-          y="85"
-          fontFamily="ui-monospace, SFMono-Regular, monospace"
-          fontSize="20"
-          fontWeight="600"
-          fill="#9ca3af"
-          letterSpacing="0.1em"
-        >
-          GENERATOR
-        </text>
-
-        {/* Accent line - longer and more prominent */}
-        <rect x="130" y="95" width="120" height="3" fill="url(#modernGradient)" opacity="0.8" rx="1.5" />
-
-        {/* Terminal-style decorative elements */}
-        <g opacity="0.3">
-          <rect x="420" y="25" width="8" height="8" fill="#f97316" />
-          <rect x="435" y="25" width="8" height="8" fill="#fb923c" />
-          <rect x="450" y="25" width="8" height="8" fill="#fdba74" />
-
-          <text x="420" y="110" fontFamily="ui-monospace, SFMono-Regular, monospace" fontSize="12" fill="#4b5563">
-            {">"}_
-          </text>
-        </g>
-      </svg>
+    <div className="text-left mb-8">
+      <div className="text-green-400 text-sm mb-2">~/gif-generator</div>
+      <div className="text-white text-lg">
+        <span className="text-gray-500">$</span> cc-gif-generator --interactive
+      </div>
     </div>
   )
 }
@@ -216,12 +104,13 @@ function Logo() {
 export default function GifGenerator() {
   const [seconds, setSeconds] = useState(0)
   const [action, setAction] = useState(() => getRandomAction())
+  const [customWord, setCustomWord] = useState("")
+  const [showCustomInput, setShowCustomInput] = useState(false)
   const [running, setRunning] = useState(true)
   const [isGeneratingGif, setIsGeneratingGif] = useState(false)
   const [generatedGifUrl, setGeneratedGifUrl] = useState<string | null>(null)
   const startTime = useRef(Date.now())
 
-  // Timer effect
   useEffect(() => {
     if (!running) return
 
@@ -232,7 +121,6 @@ export default function GifGenerator() {
     return () => clearInterval(interval)
   }, [running])
 
-  // Keyboard handler
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
@@ -244,91 +132,104 @@ export default function GifGenerator() {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
-  // Reset function
   const handleReset = () => {
     setSeconds(0)
     setRunning(true)
-    setAction(getRandomAction())
+    setAction(customWord.trim() || getRandomAction())
     setGeneratedGifUrl(null)
     startTime.current = Date.now()
   }
 
-  // Generate GIF function
+  const handleSetCustomWord = () => {
+    if (customWord.trim()) {
+      setAction(customWord.trim())
+      setRunning(true)
+      setSeconds(0)
+      setGeneratedGifUrl(null)
+      startTime.current = Date.now()
+      setShowCustomInput(false)
+    }
+  }
+
   const generateGif = async () => {
     setIsGeneratingGif(true)
 
     try {
-      // Dynamically import gif.js
       const GIF = (await import("gif.js")).default
 
       const gif = new GIF({
         workers: 2,
-        quality: 5, // Better quality (lower number = better quality)
-        width: 800,
-        height: 200,
-        transparent: null, // Use solid background instead of transparency
+        quality: 5,
+        width: 400,
+        height: 80,
+        transparent: null,
         workerScript: "/gif.worker.js",
         debug: false,
+        repeat: 0,
       })
 
-      // Create canvas for rendering frames
       const canvas = document.createElement("canvas")
       const ctx = canvas.getContext("2d")!
-      canvas.width = 800
-      canvas.height = 200
+      canvas.width = 400
+      canvas.height = 80
 
-      // Set up text styles
-      ctx.font = "bold 24px monospace"
-      ctx.textAlign = "center"
+      ctx.font = "bold 18px monospace"
+      ctx.textAlign = "left"
       ctx.textBaseline = "middle"
 
       const sequence = [...spinnerChars, ...spinnerChars.slice().reverse()]
-      const frameDelay = 180 // Slower timing for better visibility
-      const cycles = 2 // Generate 2 full cycles
+      const frameDelay = 150
+      const cycles = 3
       const totalFrames = sequence.length * cycles
 
       console.log("[v0] Generating", totalFrames, "frames with", frameDelay, "ms delay")
 
-      // Generate frames
+      const currentAction = action
+
       for (let i = 0; i < totalFrames; i++) {
         const frameIndex = i % sequence.length
 
-        ctx.fillStyle = "#111827" // Solid dark gray background
+        ctx.fillStyle = "#1f2937"
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-        ctx.fillStyle = "#f97316" // Solid orange color
-        ctx.fillText(sequence[frameIndex], 300, 100)
+        const centerY = canvas.height / 2
+        const startX = 30
 
-        // Draw action text
-        ctx.fillText(`${action}…`, 500, 100)
+        ctx.fillStyle = "#f97316"
+        ctx.font = "bold 18px monospace"
+        ctx.textAlign = "center"
+        ctx.fillText(sequence[frameIndex], startX + 10, centerY)
 
-        ctx.fillStyle = "#d1d5db" // Lighter gray for better visibility
-        ctx.font = "16px monospace"
-        const timeSeconds = Math.floor((i * frameDelay) / 1000)
-        ctx.fillText(`(${timeSeconds}s · esc to interrupt)`, 600, 130)
+        ctx.textAlign = "left"
+        ctx.fillStyle = "#f97316"
+        ctx.font = "bold 18px monospace"
+        const actionText = `${currentAction}… `
+        ctx.fillText(actionText, startX + 25, centerY)
 
-        // Reset font for next frame
-        ctx.font = "bold 24px monospace"
+        const actionTextWidth = ctx.measureText(actionText).width
+        const timerStartX = startX + 25 + actionTextWidth + 8
 
-        // Add frame to GIF
-        gif.addFrame(canvas, { delay: frameDelay })
+        ctx.fillStyle = "#9ca3af"
+        ctx.font = "12px monospace"
+        const frameTime = Math.floor((i * frameDelay) / 1000)
+        ctx.fillText(`(${frameTime}s · esc to interrupt)`, timerStartX, centerY)
 
-        if (i % 5 === 0) {
+        gif.addFrame(canvas, { delay: frameDelay, copy: true })
+
+        if (i % 6 === 0) {
           console.log("[v0] Generated frame", i + 1, "of", totalFrames)
         }
       }
 
       console.log("[v0] All frames generated, starting render...")
 
-      // Render GIF
       gif.on("finished", (blob: Blob) => {
         console.log("[v0] GIF render complete, size:", blob.size, "bytes")
         const url = URL.createObjectURL(blob)
         setGeneratedGifUrl(url)
 
-        // Auto-download
         const link = document.createElement("a")
-        link.download = `thinking-animation-${action.toLowerCase()}.gif`
+        link.download = `thinking-animation-${action.toLowerCase().replace(/[^a-z0-9]/g, "-")}.gif`
         link.href = url
         document.body.appendChild(link)
         link.click()
@@ -350,68 +251,136 @@ export default function GifGenerator() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-200 flex items-center justify-center p-5 font-mono">
-      <div className="text-center max-w-4xl w-full">
+    <div className="min-h-screen bg-black text-gray-300 p-6 font-mono">
+      <div className="max-w-4xl">
         <Logo />
 
-        {/* Animation Area */}
-        <div className="mb-8 p-10 bg-gray-800 rounded-lg border border-gray-600 w-[600px] h-[120px] flex items-center justify-center mx-auto">
+        <div className="mb-6">
           {running ? (
-            <div className="text-2xl font-bold flex items-center justify-center gap-2">
+            <div className="text-base flex items-center gap-1">
               <Spinner isRunning={running} />
-              <span className="text-orange-500">{action}… </span>
-              <span className="text-gray-400 text-base">
-                ({seconds}s · <span className="font-bold">esc</span> to interrupt)
-              </span>
+              <span className="text-orange-500">{action}…</span>
+              <span className="text-gray-500 ml-2">({seconds}s · esc to interrupt)</span>
             </div>
           ) : (
-            <div className="text-2xl font-bold text-red-500">⏹ Interrupted</div>
+            <div className="text-base text-red-500">
+              <span className="text-red-500">✗</span> Interrupted
+            </div>
           )}
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-4 justify-center flex-wrap mb-8">
+        <div className="mb-6 space-y-2">
           {!running && (
-            <Button onClick={handleReset} className="bg-blue-600 hover:bg-blue-700">
-              🔄 Start Again
-            </Button>
+            <div className="text-gray-500">
+              <span className="text-gray-500">$</span>{" "}
+              <Button
+                onClick={handleReset}
+                variant="link"
+                className="text-blue-400 hover:text-blue-300 p-0 h-auto font-mono underline"
+              >
+                restart
+              </Button>
+            </div>
           )}
 
-          <Button
-            onClick={generateGif}
-            disabled={isGeneratingGif}
-            className={`${isGeneratingGif ? "bg-gray-600" : "bg-orange-600 hover:bg-orange-700"}`}
-          >
-            {isGeneratingGif ? "⏳ Generating GIF..." : "🎬 Generate Animated GIF"}
-          </Button>
+          <div className="text-gray-500">
+            <span className="text-gray-500">$</span>{" "}
+            <Button
+              onClick={() => setShowCustomInput(!showCustomInput)}
+              variant="link"
+              className="text-cyan-400 hover:text-cyan-300 p-0 h-auto font-mono underline text-sm"
+            >
+              set-word
+            </Button>
+          </div>
+
+          {showCustomInput && (
+            <div className="ml-4 flex items-center gap-2 text-sm">
+              <span className="text-gray-500">word:</span>
+              <input
+                type="text"
+                value={customWord}
+                onChange={(e) => setCustomWord(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSetCustomWord()}
+                placeholder="Enter custom word..."
+                className="bg-gray-900 border border-gray-700 text-orange-400 px-2 py-1 rounded font-mono focus:outline-none focus:border-orange-500"
+                autoFocus
+              />
+              <Button
+                onClick={handleSetCustomWord}
+                variant="link"
+                className="text-green-400 hover:text-green-300 p-0 h-auto font-mono underline text-sm"
+              >
+                apply
+              </Button>
+            </div>
+          )}
+
+          <div className="text-gray-500">
+            <span className="text-gray-500">$</span>{" "}
+            <Button
+              onClick={generateGif}
+              disabled={isGeneratingGif}
+              variant="link"
+              className={`p-0 h-auto font-mono underline ${
+                isGeneratingGif
+                  ? "text-gray-600 cursor-not-allowed no-underline"
+                  : "text-orange-400 hover:text-orange-300"
+              }`}
+            >
+              {isGeneratingGif ? "generating..." : "export-gif"}
+            </Button>
+          </div>
         </div>
 
-        {/* GIF Preview */}
         {generatedGifUrl && (
-          <div className="mt-5 p-5 bg-gray-800 rounded-lg border border-gray-600">
-            <h3 className="text-orange-500 text-xl font-bold mt-0 mb-4">Generated GIF Preview:</h3>
-            <img
-              src={generatedGifUrl || "/placeholder.svg"}
-              alt="Generated animation GIF"
-              className="max-w-full rounded border border-gray-600"
-            />
-            <p className="text-gray-400 text-sm leading-relaxed mb-0 mt-4">
-              GIF has been downloaded automatically. You can also right-click the image above to save it.
-            </p>
+          <div className="mt-6 border-l-2 border-green-400 pl-4">
+            <div className="text-green-400 text-sm mb-2">✓ GIF exported successfully</div>
+            <div className="flex justify-center">
+              <img
+                src={generatedGifUrl || "/placeholder.svg"}
+                alt="Generated animation GIF"
+                className="border border-gray-700 rounded"
+              />
+            </div>
+            <div className="text-gray-500 text-xs mt-2">
+              File downloaded: thinking-animation-{action.toLowerCase().replace(/[^a-z0-9]/g, "-")}.gif
+            </div>
           </div>
         )}
 
-        {/* Instructions */}
-        <div className="text-gray-400 text-sm leading-relaxed">
-          <p>
-            <span className="font-bold">Instructions:</span>
-          </p>
-          <p>
-            • Press <span className="font-bold">ESC</span> to stop the animation
-          </p>
-          <p>• Click "Generate Animated GIF" to create and download a real animated GIF</p>
-          <p>• Each session shows a random thinking action from {actions.length} possibilities</p>
-          <p>• The GIF captures one full spinner cycle with the current action text</p>
+        <div className="mt-8 text-gray-500 text-sm border-t border-gray-800 pt-4">
+          <div className="mb-2">USAGE:</div>
+          <div className="ml-4 space-y-1">
+            <div>• Press ESC to interrupt animation</div>
+            <div>• Run 'set-word' to customize the action word</div>
+            <div>• Run 'export-gif' to generate animated GIF</div>
+            <div>• {actions.length} random actions available by default</div>
+          </div>
+        </div>
+
+        <div className="mt-6 text-gray-600 text-xs border-t border-gray-800 pt-4">
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center">
+              <span className="text-gray-500">source:</span>
+              <a
+                href="https://github.com/g-s-p/cc-gif-generator"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 underline"
+              >
+                <svg className="w-3 h-3 mx-1 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+              </a>
+            </div>
+            <div>
+              <span className="text-gray-500">license:</span> MIT
+            </div>
+            <div>
+              <span className="text-gray-500">credits:</span> Built with v0.dev, gif.js, Next.js, and Tailwind CSS
+            </div>
+          </div>
         </div>
       </div>
     </div>
