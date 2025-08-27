@@ -1,4 +1,4 @@
-# CC GIF generator
+# CC GIF Generator
 
 ![documenting...](./public/readme.gif)
 
