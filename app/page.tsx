@@ -46,9 +46,9 @@ function Spinner({ isRunning }: { isRunning: boolean }) {
 function Logo() {
   return (
     <div className="text-left mb-8">
-      <div className="text-green-400 text-sm mb-2">~/gif-generator</div>
+      <div className="text-green-400 text-sm mb-2">~/cc-gif-generator</div>
       <div className="text-white text-lg">
-        <span className="text-gray-500">$</span> cc-gif-generator --interactive
+        <span className="text-gray-500">$</span> cc-gg --interactive
       </div>
     </div>
   )
