@@ -339,7 +339,6 @@ export default function GifGenerator() {
   
           <div className="mt-6 text-gray-600 text-xs border-t border-gray-800 pt-4">
             <div className="flex flex-col space-y-1">
-              <div className="flex items-center">
               <div><span className="text-gray-500">credits:</span> Built with v0.dev, gif.js, Next.js, and Tailwind CSS</div>
             </div>
           </div>
